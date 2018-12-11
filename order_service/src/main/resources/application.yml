@@ -1,0 +1,91 @@
+server:
+  port: 8781
+
+##指定需要跟注册中心交互
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+##指定服务名称，如果这个服务需要注册到注册中心，这也是其在注册中心的ID
+spring:
+  application:
+    name: order-service
+  zipkin:
+    base-url: http://192.168.99.100:9411/
+  ##采样百分比，开发环境设置为1，代表100%，默认0.1
+  sleuth:
+    sampler:
+      probability: 1
+
+##Feign集成了ribbon, 可以不用单独设置ribbon，但是如果需要更改ribbon的默认值，还是需要在这里配置ribbon
+product-service:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+    OkToRetryOnAllOperations: false #对所有操作请求都进行重试,默认false
+    ReadTimeout: 5000   #负载均衡超时时间，默认值5000
+    ConnectTimeout: 5000 #ribbon请求连接的超时时间，默认值2000
+    MaxAutoRetries: 0     #对当前实例的重试次数，默认0
+    MaxAutoRetriesNextServer: 1 #对切换实例的重试次数，默认1
+
+feign:
+  hystrix:
+    enabled: true
+
+
+##Hystrix设置
+#策略为THREAD/SEMAPHORE
+hystrix:
+  command:
+    #default 设置，作用范围为所有的hystrixCommand
+    default:
+      execution:
+        isolation:
+          strategy: THREAD
+          thread:
+            timeoutInMilliseconds: 3000
+            interruptOnTimeout: true
+        timeout:
+          enabled: true
+  #special particular command strategy
+    UseThreadPool_key:
+      execution:
+        isolation:
+          strategy: THREAD
+          thread:
+            timeoutInMilliseconds: 3000
+            interruptOnTimeout: true
+
+
+##设置feign的超时时间
+##但是注意，feign集成了Hystrix,如果这里不设置的话，会使用Hystrix的默认超时时间（1秒），而feign的默认超时时间是60秒
+##如果在这里明确设置了超时时间，那么会覆盖hystrix的超时时间
+#feign:
+#  client:
+#    config:
+#      default:
+#        connectTimeout: 1000
+#        readTimeout: 2000
+#        loggerLevel: basic
+
+#here is the full settings, we can get it from spring offical website
+#feign:
+#  client:
+#    config:
+#      feignName:
+#        connectTimeout: 5000
+#        readTimeout: 5000
+#        loggerLevel: full
+#        errorDecoder: com.example.SimpleErrorDecoder
+#        retryer: com.example.SimpleRetryer
+#        requestInterceptors:
+#          - com.example.FooRequestInterceptor
+#          - com.example.BarRequestInterceptor
+#        decode404: false
+#        encoder: com.example.SimpleEncoder
+#        decoder: com.example.SimpleDecoder
+#        contract: com.example.SimpleContract
+
+

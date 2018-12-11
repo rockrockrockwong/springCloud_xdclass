@@ -1,0 +1,46 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: api-gateway
+
+##指定需要跟注册中心交互
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+zuul:
+  host:
+    socket-timeout-millis: 60000
+    connect-timeout-millis: 10000
+  routes:
+    ##自定义路由规则
+    order-service: /os-gw/**
+    product-service: /ps-gw/**
+  ##哪些service应该被忽略掉,
+  ##ignored-services:
+  ##符合哪些匹配模式的服务应该被忽略掉
+  ##ignored-patterns: /*-service/**
+
+ribbon:
+  NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+  OkToRetryOnAllOperations: false #对所有操作请求都进行重试,默认false
+  ReadTimeout: 5000   #负载均衡超时时间，默认值5000
+  ConnectTimeout: 5000 #ribbon请求连接的超时时间，默认值2000
+  MaxAutoRetries: 0     #对当前实例的重试次数，默认0
+  MaxAutoRetriesNextServer: 1 #对切换实例的重试次数，默认1
+
+hystrix:
+  command:
+    #default 设置，作用范围为所有的hystrixCommand
+    default:
+      execution:
+        isolation:
+          strategy: THREAD
+          thread:
+            timeoutInMilliseconds: 3000
+            interruptOnTimeout: true
+        timeout:
+          enabled: true
