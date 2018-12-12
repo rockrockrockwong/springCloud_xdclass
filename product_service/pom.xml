@@ -47,6 +47,11 @@
             <artifactId>spring-cloud-starter-zipkin</artifactId>
         </dependency>
 
+        <!--从配置中心读取配置文件-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-client</artifactId>
+        </dependency>
 
         <!--slf4j faced-mode cover for log4j-->
         <dependency>
